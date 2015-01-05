@@ -111,7 +111,7 @@ public class DriveModuleSubsystem extends Subsystem {
         SmartDashboard.putNumber(descriptor + " Raw Module Angle",
                 this.getRawModuleAngle());
         SmartDashboard.putBoolean(descriptor + " Switch State",
-                switchPressed);
+                !homeSwitch.get());
         SmartDashboard.putNumber(descriptor + " Input X",
                 x);
         SmartDashboard.putNumber(descriptor + " Input Y",
