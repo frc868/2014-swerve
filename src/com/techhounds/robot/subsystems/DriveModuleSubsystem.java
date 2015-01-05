@@ -211,7 +211,7 @@ public class DriveModuleSubsystem extends Subsystem {
         if(direction > 1) {
             direction = 1;
         }
-        if(direction < 1) {
+        if(direction < -1) {
             direction = -1;
         }
         
@@ -219,9 +219,12 @@ public class DriveModuleSubsystem extends Subsystem {
         //Else, direction just remains zero and is easier to swing on the next cycle
         if(direction == newDirection || newDirection == 0) {
             angle = newAngle;
-            if(newAngle > 360) {
-                newAngle -= 360;
+            if(angle > 360) {
+                angle -= 360;
             }
+            //Angle should now be in the range of 0-360
+            
+            //Set direction in the case that newDirection is zero
             direction = newDirection;
         }
         
@@ -230,6 +233,7 @@ public class DriveModuleSubsystem extends Subsystem {
         SmartDashboard.putNumber(descriptor + " Target Angle", target);
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
         
+        //Move angle and target so that they are within 180 of each other
         if((angle - target) > 180) {
             target += 360;
         }
@@ -237,8 +241,7 @@ public class DriveModuleSubsystem extends Subsystem {
             target -= 360;
         }
         
-        //Both should now be within 180 degrees of each other
-        
+        //Turning logic code.
         if(Math.abs(target - angle) <= RobotMap.angleTolerance) {
             this.turn(0.0);
         }
