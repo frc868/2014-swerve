@@ -36,7 +36,7 @@ public class RobotMap {
     public static final int frontLeftModuleTurnMotor = 2;
     public static final double frontLeftModuleDriveMotorScale = 1;
     public static final double frontLeftModuleTurnMotorScale = 1;
-    public static final double frontLeftModuleTurnEncoderOffset = getConfig("FrontLeftOffset",3.802);
+    public static final double frontLeftModuleTurnEncoderOffset = getConfig("FrontLeftOffset",4.856);
     
     public static final int frontRightModuleTurnEncoder = 3;
     public static final int frontRightModuleHomeSwitch = 3;
@@ -47,12 +47,12 @@ public class RobotMap {
     public static final double frontRightModuleTurnEncoderOffset = getConfig("FrontRightOffset",2.315);
     
     public static final int backLeftModuleTurnEncoder = 1;
-    public static final int backLeftModuleHomeSwitch = 2;
+    public static final int backLeftModuleHomeSwitch = 6;
     public static final int backLeftModuleDriveMotor = 7;
     public static final int backLeftModuleTurnMotor = 4;
     public static final double backLeftModuleDriveMotorScale = 1;
     public static final double backLeftModuleTurnMotorScale = -1;
-    public static final double backLeftModuleTurnEncoderOffset = getConfig("BackLeftOffset",3.386);
+    public static final double backLeftModuleTurnEncoderOffset = getConfig("BackLeftOffset",0.864);
     
     public static final int backRightModuleTurnEncoder = 2;
     public static final int backRightModuleHomeSwitch = 1;
