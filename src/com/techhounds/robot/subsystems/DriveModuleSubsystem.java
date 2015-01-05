@@ -163,14 +163,20 @@ public class DriveModuleSubsystem extends Subsystem {
      * @param target 
      */
     private void turnToAngle(double target) {
-        //Fix the range on target, tmake it 0-360
-        if(target < 0) {
+        //Fix the range on target, make it 0-360
+        while(target < 0) {
             target += 360;
+        }
+        while(target > 360) {
+            target -= 360;
         }
         
         //Make sure the modules do not turn more than 60 degrees between each cycle
         double newAngle = (this.getTurnEncoderRaw() - turnEncoderOffset) * 
                 360 / RobotMap.turnGearRatio / 5;
+        //^This value cannot be trusted that much
+        //Extra filtering must be done to get a final value
+        
         while((angle - newAngle) > (360 / RobotMap.turnGearRatio / 2)) {
             newAngle += (360 / RobotMap.turnGearRatio);
         }
@@ -202,10 +208,10 @@ public class DriveModuleSubsystem extends Subsystem {
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
         
         if((angle - target) > 180) {
-            angle -= 360;
+            target += 360;
         }
         if((target - angle) > 180) {
-            angle += 360;
+            target -= 360;
         }
         
         //Both should now be within 180 degrees of each other
