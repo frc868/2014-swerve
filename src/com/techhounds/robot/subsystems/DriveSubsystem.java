@@ -86,12 +86,12 @@ public class DriveSubsystem extends Subsystem {
         double y = OI.getInstance().getDriverGamePad().getLeftStickY();
         double r = OI.getInstance().getDriverGamePad().getRightStickX();
         
-        xAvg = xAvg * .75 + x * .25;
-        yAvg = yAvg * .75 + y * .25;
-        rAvg = rAvg * .75 + r * .25;
-        //xAvg = x;
-        //yAvg = y;
-        //rAvg = r;
+        //xAvg = xAvg * .75 + x * .25;
+        //yAvg = yAvg * .75 + y * .25;
+        //rAvg = rAvg * .75 + r * .25;
+        xAvg = x;
+        yAvg = y;
+        rAvg = r;
         
         SmartDashboard.putNumber("Gamepad Left Stick X", xAvg);
         SmartDashboard.putNumber("Gamepad Left Stick Y", yAvg);
