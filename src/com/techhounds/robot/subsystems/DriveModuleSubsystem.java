@@ -30,9 +30,6 @@ public class DriveModuleSubsystem extends Subsystem {
      * Measured in degrees
      */
     private double angle;
-    private double angleRaw;
-    private double angleSlope;
-    private double angleOldSlope;
     
     private double x;
     private double y;
@@ -45,6 +42,8 @@ public class DriveModuleSubsystem extends Subsystem {
     private double turnMotorScale;
     private double turnEncoderOffset;
     private String descriptor;
+    
+    private int direction;
     
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
@@ -66,9 +65,15 @@ public class DriveModuleSubsystem extends Subsystem {
         this.turnEncoderOffset = turnEncoderOffset;
         this.descriptor = descriptor;
         
-        this.turnEncoder.setAverageBits(1024);
+        //this.turnEncoder.setAverageBits(1024);
+        
+        this.direction = 0;
     }
     
+    /**
+     * Checks if the module is done homing. Turns off turn motor if it is done
+     * @return True if the module is done homing, false otherwise.
+     */
     public boolean doneHomeModule() {
         if(switchPressed && 
            Math.abs(turnEncoderOffset - this.getTurnEncoderRaw()) <= RobotMap.turnTolerance) {
@@ -81,12 +86,19 @@ public class DriveModuleSubsystem extends Subsystem {
         }
     }
     
+    /**
+     * Marks this module as not homed.
+     */
     public void homeModuleInit() {
         switchPressed = false;
     }
     
+    /**
+     * Runs the turn motor to home the module.
+     */
     public void homeModule() {
         if(!switchPressed) {
+            //Keep rotating until switch gets pressed once
             switchPressed = !homeSwitch.get();
             if(!switchPressed) {
                 this.turn(1.0);
@@ -96,15 +108,22 @@ public class DriveModuleSubsystem extends Subsystem {
             }
         }
         else {
+            //Move to encoder offset after switch gets pressed once
             this.turnToPositionRaw(turnEncoderOffset);
         }
     }
     
+    /**
+     * Stops all the motors
+     */
     public void stopMotors(){
         turnMotor.stopMotor();
         driveMotor.stopMotor();
     }
     
+    /**
+     * Dumps a lot of data onto the smart dashboard.
+     */
     public void updateDashboard() {
         SmartDashboard.putNumber(descriptor + " Raw Turn Encoder Value",
                 this.getTurnEncoderRaw());
@@ -136,7 +155,6 @@ public class DriveModuleSubsystem extends Subsystem {
                 a += 360;
             }
             //a should now be in range of 0-360
-            
         }
     }
     
@@ -159,48 +177,53 @@ public class DriveModuleSubsystem extends Subsystem {
     
     /**
      * Turns the module to a specific angle
+     * Make sure target is within the range 0-360
      * May modify r if it sees that would reduce the angle turning required
      * @param target 
      */
     private void turnToAngle(double target) {
-        //Fix the range on target, make it 0-360
-        while(target < 0) {
-            target += 360;
-        }
-        while(target > 360) {
-            target -= 360;
-        }
         
         //Make sure the modules do not turn more than 60 degrees between each cycle
+        //Converts raw 0-5V to 0-60 degree reading
         double newAngle = (this.getTurnEncoderRaw() - turnEncoderOffset) * 
                 360 / RobotMap.turnGearRatio / 5;
         //^This value cannot be trusted that much
         //Extra filtering must be done to get a final value
         
+        //Moves the new angle within 30 degrees of the old angle
         while((angle - newAngle) > (360 / RobotMap.turnGearRatio / 2)) {
             newAngle += (360 / RobotMap.turnGearRatio);
         }
-        angle = newAngle;
-        if(angle > 360) {
-            angle -= 360;
+        
+        //Finds the direction of rotation
+        int newDirection = 0;
+        if(newAngle - angle > RobotMap.angleTolerance) {
+            newDirection = 1;
+        }
+        if(angle - newAngle > RobotMap.angleTolerance) {
+            newDirection = -1;
         }
         
-        /*
-        if(!homeSwitch.get()) {
-            while(angle > ((turnEncoderOffset / 5 * 360) + 60)) {
-                angle -= 120;
+        //Add a bit of hysteresis to the system
+        direction += newDirection;
+        
+        //Renormalize the direction
+        if(direction > 1) {
+            direction = 1;
+        }
+        if(direction < 1) {
+            direction = -1;
+        }
+        
+        //If it gets swung completely to the other side, change
+        //Else, direction just remains zero and is easier to swing on the next cycle
+        if(direction == newDirection || newDirection == 0) {
+            angle = newAngle;
+            if(newAngle > 360) {
+                newAngle -= 360;
             }
-            while(angle < ((turnEncoderOffset / 5 * 360) - 60)) {
-                angle += 120;
-            }
+            direction = newDirection;
         }
-        if(angle > 360) {
-            angle -= 360;
-        }
-        if(angle < 0) {
-            angle += 360;
-        }
-        */
         
         //Both target and angle are now in the range of 0 - 360
         //Or at least they should be
@@ -283,81 +306,8 @@ public class DriveModuleSubsystem extends Subsystem {
      */
     private double getTurnEncoderRaw() {
         double raw = 5.0 - turnEncoder.getAverageVoltage();
-        if((angleRaw - raw) > 2.5) {
-            raw += 5;
-        }
-        if((raw - angleRaw) > 2.5) {
-            raw -= 5;
-        }
-        double slope = raw - angleRaw;
-        int s1,s2,s3;
         
-        if(slope > 0) {
-            s1 = 3;
-        }
-        else if(slope < 0) {
-            s1 = -3;
-        }
-        else {
-            s1 = 0;
-        }
-        if(angleSlope > 0) {
-            s2 = 2;
-        }
-        else if(angleSlope < 0) {
-            s2 = -2;
-        }
-        else {
-            s2 = 0;
-        }
-        if(angleOldSlope > 0) {
-            s3 = 1;
-        }
-        else if(angleOldSlope < 0) {
-            s3 = -1;
-        }
-        else {
-            s3 = 0;
-        }
-        int sum = s1 + s2 + s3;
-        
-        if(sum == 0) {
-            angleRaw = angleRaw * .1 + raw * .9;
-            angleOldSlope = angleOldSlope * .1 + angleSlope * .9;
-            angleSlope = angleSlope * .1 + slope * .9;
-        }
-        else {
-            angleRaw = raw;
-            angleOldSlope = angleSlope;
-            angleSlope = slope;
-        }
-        
-        /*
-        if((slope >= 0 && angleSlope >= 0) ||
-           (slope <= 0 && angleSlope <= 0)) {
-            angleRaw = raw;
-            angleSlope = slope;
-        }
-        else {
-            angleRaw = angleRaw * .1 + raw * .9;
-            angleSlope = angleSlope * .1 + slope * .9;
-        }
-        if(Math.abs(angleSlope) < .1) {
-            angleSlope = 0;
-        }
-        */
-        
-        angleRaw = raw;
-        angleOldSlope = angleSlope;
-        angleSlope = slope;
-        
-        if(angleRaw > 5) {
-            angleRaw -= 5;
-        }
-        if(angleRaw < 0) {
-            angleRaw += 5;
-        }
-        return angleRaw;
+        return raw;
     }
     
     /**
