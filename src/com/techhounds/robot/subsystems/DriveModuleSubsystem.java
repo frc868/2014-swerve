@@ -46,6 +46,8 @@ public class DriveModuleSubsystem extends Subsystem {
     private double turnEncoderOffset;
     private String descriptor;
     
+    private int direction;
+    
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
@@ -67,6 +69,8 @@ public class DriveModuleSubsystem extends Subsystem {
         this.descriptor = descriptor;
         
         this.turnEncoder.setAverageBits(1024);
+        
+        this.direction = 0;
     }
     
     public boolean doneHomeModule() {
@@ -120,6 +124,9 @@ public class DriveModuleSubsystem extends Subsystem {
                 r);
         SmartDashboard.putNumber(descriptor + " Input angle",
                 a);
+        
+        SmartDashboard.putNumber(descriptor + " Direction",
+                direction);
     }
     
     /**
@@ -171,12 +178,38 @@ public class DriveModuleSubsystem extends Subsystem {
         //Make sure the modules do not turn more than 60 degrees between each cycle
         double newAngle = (this.getTurnEncoderRaw() - turnEncoderOffset) * 
                 360 / RobotMap.turnGearRatio / 5;
+        
+        //Move it so it is within 30 degrees of each other
         while((angle - newAngle) > (360 / RobotMap.turnGearRatio / 2)) {
             newAngle += (360 / RobotMap.turnGearRatio);
         }
-        angle = newAngle;
-        if(angle > 360) {
-            angle -= 360;
+        
+        //Find the direction
+        int newDirection = 0;
+        if(newAngle - angle > 0) {
+            newDirection = 1;
+        }
+        if(angle - newAngle > 0) {
+            newDirection = -1;
+        }
+        
+        //Adding some hysteresis
+        direction += newDirection;
+        
+        //Fixing range of direction
+        if(direction > 2) {
+            direction = 2;
+        }
+        if(direction < -2) {
+            direction = -2;
+        }
+        
+        if( (direction > 0 && newDirection == 1) ||
+            (direction < 0 && newDirection == -1)) {
+            angle = newAngle;
+            if(angle > 360) {
+                angle -= 360;
+            }
         }
         
         /*
@@ -277,80 +310,9 @@ public class DriveModuleSubsystem extends Subsystem {
      */
     private double getTurnEncoderRaw() {
         double raw = 5.0 - turnEncoder.getAverageVoltage();
-        if((angleRaw - raw) > 2.5) {
-            raw += 5;
-        }
-        if((raw - angleRaw) > 2.5) {
-            raw -= 5;
-        }
-        double slope = raw - angleRaw;
-        int s1,s2,s3;
-        
-        if(slope > 0) {
-            s1 = 3;
-        }
-        else if(slope < 0) {
-            s1 = -3;
-        }
-        else {
-            s1 = 0;
-        }
-        if(angleSlope > 0) {
-            s2 = 2;
-        }
-        else if(angleSlope < 0) {
-            s2 = -2;
-        }
-        else {
-            s2 = 0;
-        }
-        if(angleOldSlope > 0) {
-            s3 = 1;
-        }
-        else if(angleOldSlope < 0) {
-            s3 = -1;
-        }
-        else {
-            s3 = 0;
-        }
-        int sum = s1 + s2 + s3;
-        
-        if(sum == 0) {
-            angleRaw = angleRaw * .1 + raw * .9;
-            angleOldSlope = angleOldSlope * .1 + angleSlope * .9;
-            angleSlope = angleSlope * .1 + slope * .9;
-        }
-        else {
-            angleRaw = raw;
-            angleOldSlope = angleSlope;
-            angleSlope = slope;
-        }
-        
-        /*
-        if((slope >= 0 && angleSlope >= 0) ||
-           (slope <= 0 && angleSlope <= 0)) {
-            angleRaw = raw;
-            angleSlope = slope;
-        }
-        else {
-            angleRaw = angleRaw * .1 + raw * .9;
-            angleSlope = angleSlope * .1 + slope * .9;
-        }
-        if(Math.abs(angleSlope) < .1) {
-            angleSlope = 0;
-        }
-        */
         
         angleRaw = raw;
-        angleOldSlope = angleSlope;
-        angleSlope = slope;
         
-        if(angleRaw > 5) {
-            angleRaw -= 5;
-        }
-        if(angleRaw < 0) {
-            angleRaw += 5;
-        }
         return angleRaw;
     }
     
