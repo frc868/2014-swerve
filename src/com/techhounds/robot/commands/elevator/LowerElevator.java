@@ -17,6 +17,7 @@ public class LowerElevator extends CommandBase {
     
     public LowerElevator() {
         requires(ElevatorSubsystem.getInstance());
+        setInterruptible(true);
     }
 
     // Called just before this Command runs the first time

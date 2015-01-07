@@ -17,6 +17,7 @@ public class RaiseElevator extends CommandBase {
     
     public RaiseElevator() {
         requires(ElevatorSubsystem.getInstance());
+        setInterruptible(true);
     }
 
     // Called just before this Command runs the first time

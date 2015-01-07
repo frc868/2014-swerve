@@ -40,6 +40,7 @@ public class DriveModuleSubsystem extends Subsystem {
     private double a;
     
     private boolean switchPressed;
+    private boolean doneHoming;
     
     private double driveMotorScale;
     private double turnMotorScale;
@@ -74,19 +75,12 @@ public class DriveModuleSubsystem extends Subsystem {
     }
     
     public boolean doneHomeModule() {
-        if(switchPressed && 
-           Math.abs(turnEncoderOffset - this.getTurnEncoderRaw()) <= RobotMap.turnTolerance) {
-            angle = 0.0;
-            turnMotor.set(0.0);
-            return true;
-        }
-        else {
-            return false;
-        }
+        return doneHoming;
     }
     
     public void homeModuleInit() {
         switchPressed = false;
+        doneHoming = false;
     }
     
     public void homeModule() {
@@ -100,7 +94,7 @@ public class DriveModuleSubsystem extends Subsystem {
             }
         }
         else {
-            this.turnToPositionRaw(turnEncoderOffset);
+            doneHoming = this.turnToPositionRaw(turnEncoderOffset);
         }
     }
     
