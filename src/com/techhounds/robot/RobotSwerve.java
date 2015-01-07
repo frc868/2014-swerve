@@ -11,6 +11,7 @@ package com.techhounds.robot;
 import com.techhounds.robot.commands.AutonCommands;
 import com.techhounds.robot.commands.TeleopCommands;
 import com.techhounds.robot.subsystems.DriveSubsystem;
+import com.techhounds.robot.subsystems.ElevatorSubsystem;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -106,6 +107,7 @@ public class RobotSwerve extends IterativeRobot {
             SmartDashboard.putNumber("Count", count++);
         }*/
             DriveSubsystem.getInstance().updateDashboard();
+            ElevatorSubsystem.getInstance().updateDashboard();
             SmartDashboard.putNumber("Count", count++);
     }
 }

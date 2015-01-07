@@ -6,6 +6,8 @@ import com.techhounds.robot.commands.driving.DriveWheelManual;
 import com.techhounds.robot.commands.driving.SaveModuleOffsets;
 import com.techhounds.robot.commands.driving.SpinWheelManual;
 import com.techhounds.robot.commands.driving.HomeModules;
+import com.techhounds.robot.commands.elevator.LowerElevator;
+import com.techhounds.robot.commands.elevator.RaiseElevator;
 import com.techhounds.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
@@ -42,9 +44,16 @@ public class OI {
         SmartDashboard.putData("Drive 2d Right Back", new DriveModuleManual(drive.getBackRightModule()));
         SmartDashboard.putData("Home Modules", new HomeModules());
         SmartDashboard.putData("Save Offsets", new SaveModuleOffsets());
+        SmartDashboard.putData("Elevator Up", new RaiseElevator());
+        SmartDashboard.putData("Elevator Down", new LowerElevator());
         
-        Button toggleDriveMode = new JoystickButton(driverGamepad, RobotMap.HOME_MODULES);
-        toggleDriveMode.whenPressed(new HomeModules());
+        Button homeModules = new JoystickButton(driverGamepad, RobotMap.HOME_MODULES);
+        homeModules.whenPressed(new HomeModules());
+        
+        Button elevatorUp = new JoystickButton(driverGamepad, RobotMap.ELEVATOR_UP);
+        elevatorUp.whileActive(new RaiseElevator());
+        Button elevatorDown = new JoystickButton(driverGamepad, RobotMap.ELEVATOR_DOWN);
+        elevatorDown.whileActive(new LowerElevator());
     }
     
     public static OI getInstance() {

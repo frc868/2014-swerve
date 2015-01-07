@@ -1,6 +1,7 @@
 package com.techhounds.robot.commands;
 
 import com.techhounds.robot.subsystems.DriveSubsystem;
+import com.techhounds.robot.subsystems.ElevatorSubsystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -30,6 +31,7 @@ public class UpdateDashboard extends CommandBase {
         if(timer.get() < .3){
             timer.reset();
             DriveSubsystem.getInstance().updateDashboard();
+            ElevatorSubsystem.getInstance().updateDashboard();
         }
     }
 

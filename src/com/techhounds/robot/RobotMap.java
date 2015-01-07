@@ -13,8 +13,18 @@ public class RobotMap {
     
     public static final int DRIVER_GAMEPAD = 1;
     static int HOME_MODULES = 6;
+    
+    static int ELEVATOR_UP = 1;
+    static int ELEVATOR_DOWN = 2;
+    
+    public static final int elevatorMotor = 9;
+    public static final int elevatorBottomSwitch = 5;
+    public static final int elevatorTopSwitch = 6;
+    
+    public static final double elevatorUpSpeed = 1.0;
+    public static final double elevatorDownSpeed = 1.0;
 
-    //What units are these in
+    //What units are these in?
     public static final double ROBOT_WIDTH = 20/15;
     public static final double ROBOT_LENGTH = 30/15;
     
