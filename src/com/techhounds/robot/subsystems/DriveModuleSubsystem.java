@@ -69,7 +69,7 @@ public class DriveModuleSubsystem extends Subsystem {
         this.turnEncoderOffset = turnEncoderOffset;
         this.descriptor = descriptor;
         
-        this.turnEncoder.setAverageBits(1024);
+        //this.turnEncoder.setAverageBits(1024);
         
         this.direction = 0;
     }
@@ -87,7 +87,7 @@ public class DriveModuleSubsystem extends Subsystem {
         if(!switchPressed) {
             switchPressed = !homeSwitch.get();
             if(!switchPressed) {
-                this.turn(1.0);
+                this.turn(0.5);
             }
             else {
                 this.turn(0.0);
@@ -164,7 +164,7 @@ public class DriveModuleSubsystem extends Subsystem {
      * @param target 
      */
     private void turnToAngle(double target) {
-        //Fix the range on target, tmake it 0-360
+        //Fix the range on target, make it 0-360
         if(target < 0) {
             target += 360;
         }
@@ -178,6 +178,7 @@ public class DriveModuleSubsystem extends Subsystem {
             newAngle += (360 / RobotMap.turnGearRatio);
         }
         
+        /*
         //Find the direction
         int newDirection = 0;
         if(newAngle - angle > 0) {
@@ -205,6 +206,17 @@ public class DriveModuleSubsystem extends Subsystem {
                 angle -= 360;
             }
         }
+        */
+        
+        
+        angle = newAngle;
+        if(angle > 360.0) {
+            angle -= 360.0;
+        }
+        if(angle < 0.0) {
+            angle += 360.0;
+        }
+        
         
         /*
         if(!homeSwitch.get()) {
@@ -229,10 +241,10 @@ public class DriveModuleSubsystem extends Subsystem {
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
         
         if((angle - target) > 180) {
-            angle -= 360;
+            target += 360;
         }
         if((target - angle) > 180) {
-            angle += 360;
+            target -= 360;
         }
         
         //Both should now be within 180 degrees of each other
@@ -305,7 +317,21 @@ public class DriveModuleSubsystem extends Subsystem {
     private double getTurnEncoderRaw() {
         double raw = 5.0 - turnEncoder.getAverageVoltage();
         
-        angleRaw = raw;
+        if(raw - angleRaw > 2.5) {
+            raw -= 5.0;
+        }
+        if(angleRaw - raw > 2.5) {
+            raw += 5.0;
+        }
+        
+        angleRaw = 0.5 * angleRaw + 0.5 * raw;
+        
+        if(angleRaw > 5.0) {
+            angleRaw -= 5.0;
+        }
+        if(angleRaw < 0.0) {
+            angleRaw += 5.0;
+        }
         
         return angleRaw;
     }
