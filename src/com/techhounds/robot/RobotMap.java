@@ -28,14 +28,12 @@ public class RobotMap {
     public static final double ROBOT_WIDTH = 20/15;
     public static final double ROBOT_LENGTH = 30/15;
     
-    //Range of 0-5V for raw turning
-    public static final double turnTolerance = .50;
     //Range of 0-360 degrees for turning to angle
     public static final double angleTolerance = 12;
     //Joystick deadband
     public static final double driveDeadband = .05;
     
-    public static final double degreesPerPulse = 360./2048.;
+    public static final double degreesPerPulse = 360./(2048.*3);
     
     // Drive motors are Jags
     // Turn motors are victors
@@ -77,8 +75,7 @@ public class RobotMap {
     public static final double backRightModuleTurnEncoderOffset = getConfig("BackRightOffset",0);
 
     private static double getConfig(String key, double d) {
-        //return Preferences.getInstance().getDouble(key, d);
-        return d;
+        return Preferences.getInstance().getDouble(key, d);
     }
     
 }

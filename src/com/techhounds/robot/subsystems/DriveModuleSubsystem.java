@@ -64,6 +64,9 @@ public class DriveModuleSubsystem extends Subsystem {
     }
     
     public boolean doneHomeModule() {
+        if(doneHoming) {
+            turnEncoder.reset();
+        }
         return doneHoming;
     }
     
@@ -80,6 +83,7 @@ public class DriveModuleSubsystem extends Subsystem {
             }
             else {
                 this.turn(0.0);
+                turnEncoder.reset();
             }
         }
         else {
@@ -94,7 +98,7 @@ public class DriveModuleSubsystem extends Subsystem {
     
     public void updateDashboard() {
         SmartDashboard.putNumber(descriptor + " Raw Turn Encoder Count",
-                turnEncoder.getRaw());
+                turnEncoder.get());
         SmartDashboard.putNumber(descriptor + " Module Angle",
                 this.getCurrentAngle());
         SmartDashboard.putBoolean(descriptor + " Switch State",
@@ -119,11 +123,6 @@ public class DriveModuleSubsystem extends Subsystem {
         r = Math.sqrt(x * x + y * y);
         if(r >= RobotMap.driveDeadband) {
             a = MathUtils.atan2(y, -x) * 180 / Math.PI - 90;
-            if(a < 0) {
-                a += 360;
-            }
-            //a should now be in range of 0-360
-            
         }
     }
     
