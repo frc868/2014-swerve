@@ -39,7 +39,8 @@ public class DriveSubsystem extends Subsystem {
     private DriveSubsystem() {
         super("DriveSubsystem");
         
-        frontLeftModule = new DriveModuleSubsystem(RobotMap.frontLeftModuleTurnEncoder,
+        frontLeftModule = new DriveModuleSubsystem(RobotMap.frontLeftModuleTurnEncoderA,
+                                                   RobotMap.frontLeftModuleTurnEncoderB,
                                                    RobotMap.frontLeftModuleHomeSwitch, 
                                                    RobotMap.frontLeftModuleDriveMotor,
                                                    RobotMap.frontLeftModuleTurnMotor,
@@ -47,7 +48,8 @@ public class DriveSubsystem extends Subsystem {
                                                    RobotMap.frontLeftModuleTurnMotorScale,
                                                    RobotMap.frontLeftModuleTurnEncoderOffset,
                                                    "FrontLeft");
-        frontRightModule = new DriveModuleSubsystem(RobotMap.frontRightModuleTurnEncoder,
+        frontRightModule = new DriveModuleSubsystem(RobotMap.frontRightModuleTurnEncoderA,
+                                                    RobotMap.frontRightModuleTurnEncoderB,
                                                     RobotMap.frontRightModuleHomeSwitch, 
                                                     RobotMap.frontRightModuleDriveMotor,
                                                     RobotMap.frontRightModuleTurnMotor,
@@ -55,7 +57,8 @@ public class DriveSubsystem extends Subsystem {
                                                     RobotMap.frontRightModuleTurnMotorScale,
                                                     RobotMap.frontRightModuleTurnEncoderOffset,
                                                    "FrontRight");
-        backLeftModule = new DriveModuleSubsystem(RobotMap.backLeftModuleTurnEncoder,
+        backLeftModule = new DriveModuleSubsystem(RobotMap.backLeftModuleTurnEncoderA,
+                                                  RobotMap.backLeftModuleTurnEncoderB,
                                                   RobotMap.backLeftModuleHomeSwitch, 
                                                   RobotMap.backLeftModuleDriveMotor,
                                                   RobotMap.backLeftModuleTurnMotor,
@@ -63,7 +66,8 @@ public class DriveSubsystem extends Subsystem {
                                                   RobotMap.backLeftModuleTurnMotorScale,
                                                   RobotMap.backLeftModuleTurnEncoderOffset,
                                                    "BackLeft");
-        backRightModule = new DriveModuleSubsystem(RobotMap.backRightModuleTurnEncoder,
+        backRightModule = new DriveModuleSubsystem(RobotMap.backRightModuleTurnEncoderA,
+                                                   RobotMap.backRightModuleTurnEncoderB,
                                                    RobotMap.backRightModuleHomeSwitch, 
                                                    RobotMap.backRightModuleDriveMotor,
                                                    RobotMap.backRightModuleTurnMotor,

@@ -4,6 +4,7 @@ import com.sun.squawk.util.MathUtils;
 import com.techhounds.robot.RobotMap;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Victor;
@@ -22,17 +23,8 @@ public class DriveModuleSubsystem extends Subsystem {
     private Victor turnMotor;
     
     // Count increases counter-clockwise
-    private AnalogChannel turnEncoder;
+    private Encoder turnEncoder;
     private DigitalInput homeSwitch;
-
-    /**
-     * The angle of the module
-     * Measured in degrees
-     */
-    private double angle;
-    private double angleRaw;
-    private double angleSlope;
-    private double angleOldSlope;
     
     private double x;
     private double y;
@@ -47,19 +39,17 @@ public class DriveModuleSubsystem extends Subsystem {
     private double turnEncoderOffset;
     private String descriptor;
     
-    private int direction;
-    
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     }
     
-    public DriveModuleSubsystem(int turnEncoder, int homeSwitch,
+    public DriveModuleSubsystem(int turnEncoderA, int turnEncoderB, int homeSwitch,
                                 int driveMotor, int turnMotor,
                                 double driveMotorScale, double turnMotorScale,
                                 double turnEncoderOffset, String descriptor) {
         super("DriveModuleSubsystem " + descriptor);
-        this.turnEncoder = new AnalogChannel(turnEncoder);
+        this.turnEncoder = new Encoder(turnEncoderA, turnEncoderB);
         this.homeSwitch = new DigitalInput(homeSwitch);
         this.driveMotor = new Jaguar(driveMotor);
         this.turnMotor = new Victor(turnMotor);
@@ -69,9 +59,8 @@ public class DriveModuleSubsystem extends Subsystem {
         this.turnEncoderOffset = turnEncoderOffset;
         this.descriptor = descriptor;
         
-        //this.turnEncoder.setAverageBits(1024);
-        
-        this.direction = 0;
+        this.turnEncoder.setDistancePerPulse(RobotMap.degreesPerPulse);
+        this.turnEncoder.start();
     }
     
     public boolean doneHomeModule() {
@@ -94,7 +83,7 @@ public class DriveModuleSubsystem extends Subsystem {
             }
         }
         else {
-            doneHoming = this.turnToPositionRaw(turnEncoderOffset);
+            doneHoming = this.turnToAngle(turnEncoderOffset);
         }
     }
     
@@ -104,10 +93,10 @@ public class DriveModuleSubsystem extends Subsystem {
     }
     
     public void updateDashboard() {
-        SmartDashboard.putNumber(descriptor + " Raw Turn Encoder Value",
-                this.getTurnEncoderRaw());
-        SmartDashboard.putNumber(descriptor + " Raw Module Angle",
-                this.getRawModuleAngle());
+        SmartDashboard.putNumber(descriptor + " Raw Turn Encoder Count",
+                turnEncoder.getRaw());
+        SmartDashboard.putNumber(descriptor + " Module Angle",
+                this.getCurrentAngle());
         SmartDashboard.putBoolean(descriptor + " Switch State",
                 !homeSwitch.get());
         SmartDashboard.putNumber(descriptor + " Input X",
@@ -118,9 +107,6 @@ public class DriveModuleSubsystem extends Subsystem {
                 r);
         SmartDashboard.putNumber(descriptor + " Input angle",
                 a);
-        
-        SmartDashboard.putNumber(descriptor + " Direction",
-                direction);
     }
     
     /**
@@ -162,95 +148,24 @@ public class DriveModuleSubsystem extends Subsystem {
      * Turns the module to a specific angle
      * May modify r if it sees that would reduce the angle turning required
      * @param target 
+     * @return If the module is within the turn tolerance
      */
-    private void turnToAngle(double target) {
-        //Fix the range on target, make it 0-360
-        if(target < 0) {
-            target += 360;
+    private boolean turnToAngle(double target) {
+        double angle = getCurrentAngle();
+        while(angle - target > 180) {
+            angle -= 180;
+        }
+        while(target - angle > 180) {
+            angle += 180;
         }
         
-        //Make sure the modules do not turn more than 60 degrees between each cycle
-        double newAngle = (this.getTurnEncoderRaw() - turnEncoderOffset) * 
-                360 / RobotMap.turnGearRatio / 5;
-        
-        //Move it so it is within 30 degrees of each other
-        while((angle - newAngle) > (360 / RobotMap.turnGearRatio / 2)) {
-            newAngle += (360 / RobotMap.turnGearRatio);
-        }
-        
-        /*
-        //Find the direction
-        int newDirection = 0;
-        if(newAngle - angle > 0) {
-            newDirection = 1;
-        }
-        if(angle - newAngle > 0) {
-            newDirection = -1;
-        }
-        
-        //Adding some hysteresis
-        direction += newDirection;
-        
-        //Fixing range of direction
-        if(direction > 2) {
-            direction = 2;
-        }
-        if(direction < -2) {
-            direction = -2;
-        }
-        
-        if( (direction > 0 && newDirection == 1) ||
-            (direction < 0 && newDirection == -1)) {
-            angle = newAngle;
-            if(angle > 360) {
-                angle -= 360;
-            }
-        }
-        */
-        
-        
-        angle = newAngle;
-        if(angle > 360.0) {
-            angle -= 360.0;
-        }
-        if(angle < 0.0) {
-            angle += 360.0;
-        }
-        
-        
-        /*
-        if(!homeSwitch.get()) {
-            while(angle > ((turnEncoderOffset / 5 * 360) + 60)) {
-                angle -= 120;
-            }
-            while(angle < ((turnEncoderOffset / 5 * 360) - 60)) {
-                angle += 120;
-            }
-        }
-        if(angle > 360) {
-            angle -= 360;
-        }
-        if(angle < 0) {
-            angle += 360;
-        }
-        */
-        
-        //Both target and angle are now in the range of 0 - 360
-        //Or at least they should be
+        //Both target and angle should be within 180 degrees of each other
         SmartDashboard.putNumber(descriptor + " Target Angle", target);
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
         
-        if((angle - target) > 180) {
-            target += 360;
-        }
-        if((target - angle) > 180) {
-            target -= 360;
-        }
-        
-        //Both should now be within 180 degrees of each other
-        
         if(Math.abs(target - angle) <= RobotMap.angleTolerance) {
             this.turn(0.0);
+            return true;
         }
         else {
             if(target > angle) {
@@ -259,35 +174,8 @@ public class DriveModuleSubsystem extends Subsystem {
             else {
                 this.turn(-1.0);
             }
-        }
-    }
-    
-    /**
-     * Turns the module to a specific position
-     * @param target The target for the module. Must be from 0.0 to 5.0
-     * @return If the module is within the tolerance range of the target
-     */
-    private boolean turnToPositionRaw(double target) {
-        if((angle - this.getTurnEncoderRaw()) > 2.5) {
-            angle -= 5;
-        }
-        if((target - this.getTurnEncoderRaw()) > 2.5) {
-            angle += 5;
-        }
-        if(Math.abs(target - this.getTurnEncoderRaw()) <= RobotMap.turnTolerance) {
-            this.turn(0.0);
-            angle = 0.0;
-            return true;
-        }
-        else {
-            if(target > this.getTurnEncoderRaw()) {
-                this.turn(0.1);
-            }
-            else {
-                this.turn(-0.1);
-            }
             return false;
-        }   
+        }
     }
     
     /**
@@ -310,42 +198,14 @@ public class DriveModuleSubsystem extends Subsystem {
     }
     
     /**
-     * Gets the raw encoder value
-     * Increasing value is clockwise module motion when viewed from the top
-     * @return The turn encoder value
+     * Gets the current rotation angle
      */
-    private double getTurnEncoderRaw() {
-        double raw = 5.0 - turnEncoder.getAverageVoltage();
-        
-        if(raw - angleRaw > 2.5) {
-            raw -= 5.0;
-        }
-        if(angleRaw - raw > 2.5) {
-            raw += 5.0;
-        }
-        
-        angleRaw = 0.5 * angleRaw + 0.5 * raw;
-        
-        if(angleRaw > 5.0) {
-            angleRaw -= 5.0;
-        }
-        if(angleRaw < 0.0) {
-            angleRaw += 5.0;
-        }
-        
-        return angleRaw;
-    }
-    
-    /**
-     * Gets the raw angle of the module
-     * Warning, this angle is relative to a arbritrary angle
-     * @return The raw angle of the module
-     */
-    private double getRawModuleAngle() {
+    private double getCurrentAngle() {
+        double angle = turnEncoder.getDistance();
         return angle;
-    } 
+    }
 
     void saveOffset() {
-        Preferences.getInstance().putDouble(descriptor + "Offset", getTurnEncoderRaw());
+        Preferences.getInstance().putDouble(descriptor + "Offset", getCurrentAngle());
     }
 }
