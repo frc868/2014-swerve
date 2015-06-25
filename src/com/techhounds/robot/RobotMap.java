@@ -18,8 +18,8 @@ public class RobotMap {
     static int ELEVATOR_DOWN = 2;
     
     public static final int elevatorMotor = 9;
-    public static final int elevatorBottomSwitch = 7;
-    public static final int elevatorTopSwitch = 8;
+    public static final int elevatorBottomSwitch = 2;
+    public static final int elevatorTopSwitch = 5;
     
     public static final double elevatorUpSpeed = 1.0;
     public static final double elevatorDownSpeed = 1.0;
@@ -29,7 +29,7 @@ public class RobotMap {
     public static final double ROBOT_LENGTH = 30/15;
     
     //Range of 0-360 degrees for turning to angle
-    public static final double angleTolerance = 12;
+    public static final double angleTolerance = 6;
     //Joystick deadband
     public static final double driveDeadband = .05;
     
@@ -74,7 +74,7 @@ public class RobotMap {
     public static final double backRightModuleTurnMotorScale = -1;
     public static final double backRightModuleTurnEncoderOffset = getConfig("BackRightOffset",0);
 
-    private static double getConfig(String key, double d) {
+    public static double getConfig(String key, double d) {
         return Preferences.getInstance().getDouble(key, d);
     }
     

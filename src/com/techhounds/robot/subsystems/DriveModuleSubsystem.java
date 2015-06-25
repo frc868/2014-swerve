@@ -49,7 +49,7 @@ public class DriveModuleSubsystem extends Subsystem {
                                 double driveMotorScale, double turnMotorScale,
                                 double turnEncoderOffset, String descriptor) {
         super("DriveModuleSubsystem " + descriptor);
-        this.turnEncoder = new Encoder(turnEncoderA, turnEncoderB);
+        this.turnEncoder = new Encoder(turnEncoderA, turnEncoderB,true);
         this.homeSwitch = new DigitalInput(homeSwitch);
         this.driveMotor = new Jaguar(driveMotor);
         this.turnMotor = new Victor(turnMotor);
@@ -152,10 +152,10 @@ public class DriveModuleSubsystem extends Subsystem {
     private boolean turnToAngle(double target) {
         double angle = getCurrentAngle();
         while(angle - target > 180) {
-            angle -= 180;
+            angle -= 360;
         }
         while(target - angle > 180) {
-            angle += 180;
+            angle += 360;
         }
         
         //Both target and angle should be within 180 degrees of each other
@@ -205,6 +205,6 @@ public class DriveModuleSubsystem extends Subsystem {
     }
 
     void saveOffset() {
-        Preferences.getInstance().putDouble(descriptor + "Offset", getCurrentAngle());
+        Preferences.getInstance().putDouble(descriptor + "Offset", RobotMap.getConfig(descriptor + "Offset",0) + getCurrentAngle());
     }
 }
