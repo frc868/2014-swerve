@@ -158,6 +158,17 @@ public class DriveModuleSubsystem extends Subsystem {
             angle += 360;
         }
         
+        /*
+        if(angle - target > 90) {
+            angle -= 180;
+            r = -r;
+        }
+        if(target - angle > 90) {
+            angle += 180;
+            r = -r;
+        }
+        */
+        
         //Both target and angle should be within 180 degrees of each other
         SmartDashboard.putNumber(descriptor + " Target Angle", target);
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
@@ -167,6 +178,7 @@ public class DriveModuleSubsystem extends Subsystem {
             return true;
         }
         else {
+            r = r * (1 - Math.abs(target - angle)/180);
             if(target > angle) {
                 this.turn(1.0);
             }
