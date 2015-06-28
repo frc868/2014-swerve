@@ -13,6 +13,10 @@ public class RobotMap {
     
     public static final int DRIVER_GAMEPAD = 1;
     static int HOME_MODULES = 6;
+    static int ZERO_GYRO = 8;
+    
+    static int FIELD_CENTRIC = 1;
+    static int ROBOT_CENTRIC = 3;
     
     static int ELEVATOR_UP = 4;
     static int ELEVATOR_DOWN = 2;
@@ -73,6 +77,8 @@ public class RobotMap {
     public static final double backRightModuleDriveMotorScale = -1;
     public static final double backRightModuleTurnMotorScale = -1;
     public static final double backRightModuleTurnEncoderOffset = getConfig("BackRightOffset",0);
+    
+    public static final int gyroPort = 1;
 
     public static double getConfig(String key, double d) {
         return Preferences.getInstance().getDouble(key, d);

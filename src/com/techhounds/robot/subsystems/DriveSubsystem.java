@@ -4,6 +4,7 @@ import com.sun.squawk.util.MathUtils;
 import com.techhounds.robot.OI;
 import com.techhounds.robot.RobotMap;
 import com.techhounds.robot.commands.driving.DriveWithGamepad;
+import edu.wpi.first.wpilibj.Gyro;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -22,6 +23,8 @@ public class DriveSubsystem extends Subsystem {
     private DriveModuleSubsystem backLeftModule;
     private DriveModuleSubsystem backRightModule;
     
+    private Gyro gyro;
+    
     private double xAvg;
     private double yAvg;
     private double rAvg;
@@ -30,6 +33,8 @@ public class DriveSubsystem extends Subsystem {
     private double bAvg;
     private double cAvg;
     private double dAvg;
+    
+    private boolean isFieldCentric = false;
 
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
@@ -75,6 +80,8 @@ public class DriveSubsystem extends Subsystem {
                                                    RobotMap.backRightModuleTurnMotorScale,
                                                    RobotMap.backRightModuleTurnEncoderOffset,
                                                    "BackRight");
+        
+        gyro = new Gyro(RobotMap.gyroPort);
     }
     
     public static DriveSubsystem getInstance() {
@@ -93,9 +100,18 @@ public class DriveSubsystem extends Subsystem {
         //xAvg = xAvg * .75 + x * .25;
         //yAvg = yAvg * .75 + y * .25;
         //rAvg = rAvg * .75 + r * .25;
-        xAvg = x;
-        yAvg = y;
-        rAvg = r;
+        
+        if(isFieldCentric) {
+            double angle = gyro.getAngle() * Math.PI / 180;
+            xAvg = x * Math.cos(angle) - y * Math.sin(angle);
+            yAvg = x * Math.sin(angle) + y * Math.cos(angle);
+            rAvg = r;
+        }
+        else {
+            xAvg = x;
+            yAvg = y;
+            rAvg = r;
+        }
         
         SmartDashboard.putNumber("Gamepad Left Stick X", xAvg);
         SmartDashboard.putNumber("Gamepad Left Stick Y", yAvg);
@@ -160,6 +176,18 @@ public class DriveSubsystem extends Subsystem {
         //System.out.println("Homing Modules");
     }
     
+    public void zeroGyro() {
+        gyro.reset();
+    }
+    
+    public void setFieldCentric() {
+        isFieldCentric = true;
+    }
+    
+    public void setRobotCentric() {
+        isFieldCentric = false;
+    }
+    
     public void stopMotors(){
         frontLeftModule.stopMotors();
         frontRightModule.stopMotors();
@@ -172,6 +200,8 @@ public class DriveSubsystem extends Subsystem {
         frontRightModule.updateDashboard();
         backLeftModule.updateDashboard();
         backRightModule.updateDashboard();
+        SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
+        SmartDashboard.putBoolean("Field Centric", isFieldCentric);
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {

@@ -178,7 +178,7 @@ public class DriveModuleSubsystem extends Subsystem {
             return true;
         }
         else {
-            r = r * (1 - Math.abs(target - angle)/180);
+            //r = r * (1 - Math.abs(target - angle)/180);
             if(target > angle) {
                 this.turn(1.0);
             }

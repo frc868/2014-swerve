@@ -3,9 +3,12 @@ package com.techhounds.robot;
 
 import com.techhounds.robot.commands.driving.DriveModuleManual;
 import com.techhounds.robot.commands.driving.DriveWheelManual;
-import com.techhounds.robot.commands.driving.SaveModuleOffsets;
-import com.techhounds.robot.commands.driving.SpinWheelManual;
 import com.techhounds.robot.commands.driving.HomeModules;
+import com.techhounds.robot.commands.driving.SaveModuleOffsets;
+import com.techhounds.robot.commands.driving.SetFieldCentric;
+import com.techhounds.robot.commands.driving.SetRobotCentric;
+import com.techhounds.robot.commands.driving.SpinWheelManual;
+import com.techhounds.robot.commands.driving.ZeroGyro;
 import com.techhounds.robot.commands.elevator.LowerElevator;
 import com.techhounds.robot.commands.elevator.RaiseElevator;
 import com.techhounds.robot.subsystems.DriveSubsystem;
@@ -49,6 +52,15 @@ public class OI {
         
         Button homeModules = new JoystickButton(driverGamepad, RobotMap.HOME_MODULES);
         homeModules.whenPressed(new HomeModules());
+        
+        Button zeroGyro = new JoystickButton(driverGamepad, RobotMap.ZERO_GYRO);
+        zeroGyro.whenPressed(new ZeroGyro());
+        
+        Button fieldCentric = new JoystickButton(driverGamepad, RobotMap.FIELD_CENTRIC);
+        fieldCentric.whenPressed(new SetFieldCentric());
+        
+        Button robotCentric = new JoystickButton(driverGamepad, RobotMap.ROBOT_CENTRIC);
+        robotCentric.whenPressed(new SetRobotCentric());
         
         Button elevatorUp = new JoystickButton(driverGamepad, RobotMap.ELEVATOR_UP);
         elevatorUp.whileActive(new RaiseElevator());
