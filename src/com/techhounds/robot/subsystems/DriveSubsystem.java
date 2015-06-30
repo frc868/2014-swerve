@@ -90,38 +90,42 @@ public class DriveSubsystem extends Subsystem {
     }
     
     public void driveWithGamepad() {
-        double x = OI.getInstance().getDriverGamePad().getLeftStickX();
-        double y = OI.getInstance().getDriverGamePad().getLeftStickY();
-        double r = OI.getInstance().getDriverGamePad().getRightStickX();
+        double xin = OI.getInstance().getDriverGamePad().getLeftStickX();
+        double yin = OI.getInstance().getDriverGamePad().getLeftStickY();
+        double rin = OI.getInstance().getDriverGamePad().getRightStickX();
         
-        //xAvg = xAvg * .75 + x * .25;
-        //yAvg = yAvg * .75 + y * .25;
-        //rAvg = rAvg * .75 + r * .25;
+        xAvg = xAvg * (1 - decayFactor) + xin * decayFactor;
+        yAvg = yAvg * (1 - decayFactor) + yin * decayFactor;
+        rAvg = rAvg * (1 - decayFactor) + rin * decayFactor;
+        
+        double x = 0;
+        double y = 0;
+        double r = 0;
         
         if(isFieldCentric) {
             double angle = gyro.getAngle() * Math.PI / 180;
-            xAvg = x * Math.cos(angle) - y * Math.sin(angle);
-            yAvg = x * Math.sin(angle) + y * Math.cos(angle);
-            rAvg = r;
+            x = xAvg * Math.cos(angle) - yAvg * Math.sin(angle);
+            y = xAvg * Math.sin(angle) + yAvg * Math.cos(angle);
+            r = rAvg;
         }
         else {
-            xAvg = x;
-            yAvg = y;
-            rAvg = r;
+            x = xAvg;
+            y = yAvg;
+            r = rAvg;
         }
         
-        SmartDashboard.putNumber("Gamepad Left Stick X", xAvg);
-        SmartDashboard.putNumber("Gamepad Left Stick Y", yAvg);
-        SmartDashboard.putNumber("Gamepad Right Stick X", rAvg);
+        SmartDashboard.putNumber("Gamepad Left Stick X", x);
+        SmartDashboard.putNumber("Gamepad Left Stick Y", y);
+        SmartDashboard.putNumber("Gamepad Right Stick X", r);
         
         // Time for swerve logic :)
         // Using ether's reverse kinematics for swerve drive
         // Find it here http://www.chiefdelphi.com/media/papers/2426
         // I suggest you read it, its a fascinating derivation
-        double a = xAvg - rAvg * RobotMap.ROBOT_LENGTH/2;
-        double b = xAvg + rAvg * RobotMap.ROBOT_LENGTH/2;
-        double c = yAvg - rAvg * RobotMap.ROBOT_WIDTH/2;
-        double d = yAvg + rAvg * RobotMap.ROBOT_WIDTH/2;
+        double a = x - r * RobotMap.ROBOT_LENGTH/2;
+        double b = x + r * RobotMap.ROBOT_LENGTH/2;
+        double c = y - r * RobotMap.ROBOT_WIDTH/2;
+        double d = y + r * RobotMap.ROBOT_WIDTH/2;
         
         frontLeftModule.setDriveParams(b, d);
         frontRightModule.setDriveParams(b, c);
