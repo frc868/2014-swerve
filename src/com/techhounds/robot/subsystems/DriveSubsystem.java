@@ -25,14 +25,11 @@ public class DriveSubsystem extends Subsystem {
     
     private Gyro gyro;
     
-    private double xAvg;
-    private double yAvg;
-    private double rAvg;
+    private double xAvg = 0;
+    private double yAvg = 0;
+    private double rAvg = 0;
     
-    private double aAvg;
-    private double bAvg;
-    private double cAvg;
-    private double dAvg;
+    private double decayFactor = 1;
     
     private boolean isFieldCentric = false;
 
@@ -126,19 +123,10 @@ public class DriveSubsystem extends Subsystem {
         double c = yAvg - rAvg * RobotMap.ROBOT_WIDTH/2;
         double d = yAvg + rAvg * RobotMap.ROBOT_WIDTH/2;
         
-        //aAvg = aAvg * .75 + a * .25;
-        //bAvg = bAvg * .75 + b * .25;
-        //cAvg = cAvg * .75 + c * .25;
-        //dAvg = dAvg * .75 + d * .25;
-        aAvg = a;
-        bAvg = b;
-        cAvg = c;
-        dAvg = d;
-        
-        frontLeftModule.setDriveParams(bAvg, dAvg);
-        frontRightModule.setDriveParams(bAvg, cAvg);
-        backLeftModule.setDriveParams(aAvg, dAvg);
-        backRightModule.setDriveParams(aAvg, cAvg);
+        frontLeftModule.setDriveParams(b, d);
+        frontRightModule.setDriveParams(b, c);
+        backLeftModule.setDriveParams(a, d);
+        backRightModule.setDriveParams(a, c);
         
         //Reduces everything by the same scale if anything exceeds 1
         double scale = Math.max(1.0,Math.max(
