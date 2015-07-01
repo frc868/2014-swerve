@@ -35,6 +35,10 @@ public class RobotMap {
     
     public static final double degreesPerPulse = 360./(2048.*3);
     
+    public static final double Kp = 600000;
+    public static final double Ki = 2400000;
+    public static final double Kd = 37500;
+    
     // Drive motors are Jags
     // Turn motors are victors
     

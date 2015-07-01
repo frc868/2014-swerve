@@ -75,6 +75,10 @@ public class DriveSubsystem extends Subsystem {
                                                    RobotMap.backRightModuleTurnMotorScale,
                                                    RobotMap.backRightModuleTurnEncoderOffset,
                                                    "BackRight");
+        
+        SmartDashboard.putNumber("Kp", RobotMap.Kp);
+        SmartDashboard.putNumber("Ki", RobotMap.Ki);
+        SmartDashboard.putNumber("Kd", RobotMap.Kd);
     }
     
     public static DriveSubsystem getInstance() {
@@ -172,6 +176,13 @@ public class DriveSubsystem extends Subsystem {
         frontRightModule.updateDashboard();
         backLeftModule.updateDashboard();
         backRightModule.updateDashboard();
+        double kp = SmartDashboard.getNumber("Kp");
+        double ki = SmartDashboard.getNumber("Ki");
+        double kd = SmartDashboard.getNumber("Kd");
+        frontLeftModule.setPidConstants(kp, ki, kd);
+        frontRightModule.setPidConstants(kp, ki, kd);
+        backLeftModule.setPidConstants(kp, ki, kd);
+        backRightModule.setPidConstants(kp, ki, kd);
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {

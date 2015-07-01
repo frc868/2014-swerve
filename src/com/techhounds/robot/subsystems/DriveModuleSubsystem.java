@@ -63,7 +63,7 @@ public class DriveModuleSubsystem extends Subsystem {
         this.turnEncoder.setDistancePerPulse(RobotMap.degreesPerPulse);
         this.turnEncoder.start();
         
-        this.pid = new PIDController(1, 0, 0, turnEncoder, this.turnMotor);
+        this.pid = new PIDController(RobotMap.Kp, RobotMap.Ki, RobotMap.Kd, turnEncoder, this.turnMotor);
         this.pid.setContinuous();
         this.pid.setInputRange(-180, 180);
         this.pid.setOutputRange(-1, 1);
@@ -229,5 +229,9 @@ public class DriveModuleSubsystem extends Subsystem {
 
     void saveOffset() {
         Preferences.getInstance().putDouble(descriptor + "Offset", RobotMap.getConfig(descriptor + "Offset",0) + getCurrentAngle());
+    }
+    
+    public void setPidConstants(double kp,double ki,double kd) {
+        pid.setPID(kp, ki, kd);
     }
 }
