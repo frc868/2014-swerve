@@ -39,6 +39,8 @@ public class DriveModuleSubsystem extends Subsystem {
     private double turnEncoderOffset;
     private String descriptor;
     
+    private boolean driveReversible = false;
+    
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
@@ -158,16 +160,16 @@ public class DriveModuleSubsystem extends Subsystem {
             angle += 360;
         }
         
-        /*
-        if(angle - target > 90) {
-            angle -= 180;
-            r = -r;
+        if(driveReversible) {
+            if(angle - target > 90) {
+                angle -= 180;
+                r = -r;
+            }
+            if(target - angle > 90) {
+                angle += 180;
+                r = -r;
+            }
         }
-        if(target - angle > 90) {
-            angle += 180;
-            r = -r;
-        }
-        */
         
         //Both target and angle should be within 180 degrees of each other
         SmartDashboard.putNumber(descriptor + " Target Angle", target);
@@ -216,7 +218,11 @@ public class DriveModuleSubsystem extends Subsystem {
         return angle;
     }
 
-    void saveOffset() {
+    public void saveOffset() {
         Preferences.getInstance().putDouble(descriptor + "Offset", RobotMap.getConfig(descriptor + "Offset",0) + getCurrentAngle());
+    }
+    
+    public void setDriveReversible(boolean value) {
+        driveReversible = value;
     }
 }

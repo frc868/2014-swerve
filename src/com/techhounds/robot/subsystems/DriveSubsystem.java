@@ -32,7 +32,7 @@ public class DriveSubsystem extends Subsystem {
     private double decayFactor = 1;
     
     private boolean isFieldCentric = false;
-
+    
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
@@ -81,6 +81,7 @@ public class DriveSubsystem extends Subsystem {
         gyro = new Gyro(RobotMap.gyroPort);
         
         SmartDashboard.putNumber("Decay Factor", decayFactor);
+        SmartDashboard.putBoolean("Drive Reversible", false);
     }
     
     public static DriveSubsystem getInstance() {
@@ -197,6 +198,11 @@ public class DriveSubsystem extends Subsystem {
         SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
         SmartDashboard.putBoolean("Field Centric", isFieldCentric);
         decayFactor = SmartDashboard.getNumber("Decay Factor");
+        boolean reversible = SmartDashboard.getBoolean("Drive Reversible");
+        frontLeftModule.setDriveReversible(reversible);
+        frontRightModule.setDriveReversible(reversible);
+        backLeftModule.setDriveReversible(reversible);
+        backRightModule.setDriveReversible(reversible);
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {
