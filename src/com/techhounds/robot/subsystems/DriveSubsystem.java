@@ -79,6 +79,8 @@ public class DriveSubsystem extends Subsystem {
                                                    "BackRight");
         
         gyro = new Gyro(RobotMap.gyroPort);
+        
+        SmartDashboard.putNumber("Decay Factor", decayFactor);
     }
     
     public static DriveSubsystem getInstance() {
@@ -194,6 +196,7 @@ public class DriveSubsystem extends Subsystem {
         backRightModule.updateDashboard();
         SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
         SmartDashboard.putBoolean("Field Centric", isFieldCentric);
+        decayFactor = SmartDashboard.getNumber("Decay Factor");
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {
