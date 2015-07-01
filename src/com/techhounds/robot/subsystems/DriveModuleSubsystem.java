@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -16,13 +17,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @author Tiger Huang
  */
 public class DriveModuleSubsystem extends Subsystem {
-    // Put methods for controlling this subsystem
-    // here. Call these from Commands.
     
     private Jaguar driveMotor;
     private Victor turnMotor;
     
-    // Count increases counter-clockwise
+    // Count increases clockwise
     private Encoder turnEncoder;
     private DigitalInput homeSwitch;
     
@@ -38,6 +37,8 @@ public class DriveModuleSubsystem extends Subsystem {
     private double turnMotorScale;
     private double turnEncoderOffset;
     private String descriptor;
+    
+    private PIDController pid;
     
     private boolean driveReversible = false;
     
@@ -63,6 +64,12 @@ public class DriveModuleSubsystem extends Subsystem {
         
         this.turnEncoder.setDistancePerPulse(RobotMap.degreesPerPulse);
         this.turnEncoder.start();
+        
+        this.pid = new PIDController(RobotMap.Kp, RobotMap.Ki, RobotMap.Kd, turnEncoder, this.turnMotor);
+        this.pid.setContinuous();
+        this.pid.setInputRange(-180, 180);
+        this.pid.setOutputRange(-1, 1);
+        this.pid.enable();
     }
     
     public boolean doneHomeModule() {
@@ -94,6 +101,7 @@ public class DriveModuleSubsystem extends Subsystem {
     }
     
     public void stopMotors(){
+        pid.reset();
         turnMotor.stopMotor();
         driveMotor.stopMotor();
     }
@@ -152,6 +160,9 @@ public class DriveModuleSubsystem extends Subsystem {
      * @return If the module is within the turn tolerance
      */
     private boolean turnToAngle(double target) {
+        if(!pid.isEnable()) {
+            pid.enable();
+        }
         double angle = getCurrentAngle();
         while(angle - target > 180) {
             angle -= 360;
@@ -224,5 +235,8 @@ public class DriveModuleSubsystem extends Subsystem {
     
     public void setDriveReversible(boolean value) {
         driveReversible = value;
+    }
+    public void setPidConstants(double kp,double ki,double kd) {
+        pid.setPID(kp, ki, kd);
     }
 }

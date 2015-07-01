@@ -82,6 +82,10 @@ public class DriveSubsystem extends Subsystem {
         
         SmartDashboard.putNumber("Decay Factor", decayFactor);
         SmartDashboard.putBoolean("Drive Reversible", false);
+        
+        SmartDashboard.putNumber("Kp", RobotMap.Kp);
+        SmartDashboard.putNumber("Ki", RobotMap.Ki);
+        SmartDashboard.putNumber("Kd", RobotMap.Kd);
     }
     
     public static DriveSubsystem getInstance() {
@@ -203,6 +207,13 @@ public class DriveSubsystem extends Subsystem {
         frontRightModule.setDriveReversible(reversible);
         backLeftModule.setDriveReversible(reversible);
         backRightModule.setDriveReversible(reversible);
+        double kp = SmartDashboard.getNumber("Kp");
+        double ki = SmartDashboard.getNumber("Ki");
+        double kd = SmartDashboard.getNumber("Kd");
+        frontLeftModule.setPidConstants(kp, ki, kd);
+        frontRightModule.setPidConstants(kp, ki, kd);
+        backLeftModule.setPidConstants(kp, ki, kd);
+        backRightModule.setPidConstants(kp, ki, kd);
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {
