@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Jaguar;
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -63,12 +64,12 @@ public class DriveModuleSubsystem extends Subsystem {
         this.descriptor = descriptor;
         
         this.turnEncoder.setDistancePerPulse(RobotMap.degreesPerPulse);
+        this.turnEncoder.setPIDSourceParameter(PIDSource.PIDSourceParameter.kDistance);
         this.turnEncoder.start();
         
-        this.pid = new PIDController(RobotMap.Kp, RobotMap.Ki, RobotMap.Kd, turnEncoder, this.turnMotor);
-        this.pid.setContinuous();
-        this.pid.setInputRange(-180, 180);
+        this.pid = new PIDController(RobotMap.Kp, RobotMap.Ki, RobotMap.Kd, this.turnEncoder, this.turnMotor);
         this.pid.setOutputRange(-1, 1);
+        this.pid.setAbsoluteTolerance(6);
         this.pid.enable();
     }
     
@@ -121,6 +122,9 @@ public class DriveModuleSubsystem extends Subsystem {
                 r);
         SmartDashboard.putNumber(descriptor + " Input angle",
                 a);
+        SmartDashboard.putNumber(descriptor + " PID output", pid.get());
+        SmartDashboard.putNumber(descriptor + " PID error", pid.getError());
+        SmartDashboard.putData(descriptor + " PID", pid);
     }
     
     /**
@@ -165,19 +169,19 @@ public class DriveModuleSubsystem extends Subsystem {
         }
         double angle = getCurrentAngle();
         while(angle - target > 180) {
-            angle -= 360;
+            target += 360;
         }
         while(target - angle > 180) {
-            angle += 360;
+            target -= 360;
         }
         
         if(driveReversible) {
             if(angle - target > 90) {
-                angle -= 180;
+                target += 180;
                 r = -r;
             }
             if(target - angle > 90) {
-                angle += 180;
+                target -= 180;
                 r = -r;
             }
         }
@@ -186,17 +190,21 @@ public class DriveModuleSubsystem extends Subsystem {
         SmartDashboard.putNumber(descriptor + " Target Angle", target);
         SmartDashboard.putNumber(descriptor + " Current Angle", angle);
         
+        pid.setSetpoint(target);
+        
+        SmartDashboard.putNumber(descriptor + " PID setpoint", pid.getSetpoint());
+        
         if(Math.abs(target - angle) <= RobotMap.angleTolerance) {
-            this.turn(0.0);
+            //this.turn(0.0);
             return true;
         }
         else {
             //r = r * (1 - Math.abs(target - angle)/180);
             if(target > angle) {
-                this.turn(1.0);
+                //this.turn(1.0);
             }
             else {
-                this.turn(-1.0);
+                //this.turn(-1.0);
             }
             return false;
         }

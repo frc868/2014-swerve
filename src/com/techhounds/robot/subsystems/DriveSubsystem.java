@@ -32,6 +32,7 @@ public class DriveSubsystem extends Subsystem {
     private double decayFactor = 1;
     
     private boolean isFieldCentric = false;
+    private boolean strafeEnabled = true;
     
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
@@ -82,6 +83,7 @@ public class DriveSubsystem extends Subsystem {
         
         SmartDashboard.putNumber("Decay Factor", decayFactor);
         SmartDashboard.putBoolean("Drive Reversible", false);
+        SmartDashboard.putBoolean("Strafe Enabled", strafeEnabled);
         
         SmartDashboard.putNumber("Kp", RobotMap.Kp);
         SmartDashboard.putNumber("Ki", RobotMap.Ki);
@@ -119,6 +121,14 @@ public class DriveSubsystem extends Subsystem {
             x = xAvg;
             y = yAvg;
             r = rAvg;
+        }
+        
+        //x = x * x * x;
+        //y = y * y * y;
+        //r = r * r * r;
+        
+        if(!strafeEnabled) {
+            x = 0;
         }
         
         SmartDashboard.putNumber("Gamepad Left Stick X", x);
@@ -214,6 +224,7 @@ public class DriveSubsystem extends Subsystem {
         frontRightModule.setPidConstants(kp, ki, kd);
         backLeftModule.setPidConstants(kp, ki, kd);
         backRightModule.setPidConstants(kp, ki, kd);
+        strafeEnabled = SmartDashboard.getBoolean("Strafe Enabled");
     }
     
     public DriveModuleSubsystem getFrontLeftModule() {
